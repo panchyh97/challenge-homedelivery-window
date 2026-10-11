@@ -41,12 +41,12 @@ public class Reservation {
 
     protected Reservation() {}
 
-    public Reservation(DeliveryWindow deliveryWindow, String orderReference, String address) {
+    public Reservation(DeliveryWindow deliveryWindow, String orderReference, String address, LocalDateTime createdAt) {
         this.deliveryWindow = deliveryWindow;
         this.orderReference = orderReference;
         this.address = address;
         this.status = ReservationStatus.CONFIRMED;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt;
     }
 
     public Long getId() { return id; }
