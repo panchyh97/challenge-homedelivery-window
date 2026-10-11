@@ -1,6 +1,7 @@
 package com.challenge.homedelivery.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import jakarta.persistence.Column;
@@ -43,17 +44,51 @@ public class DeliveryWindow {
     @Column(name = "reserved_count", nullable = false)
     private int reservedCount;
 
-    protected DeliveryWindow() {}
+    protected DeliveryWindow() {
+    }
 
-    public int getAvailableSlots() { return capacity - reservedCount; }
-    public boolean isSoldOut() { return reservedCount >= capacity; }
+    public int getAvailableSlots() {
+        return capacity - reservedCount;
+    }
 
-    public Long getId() { return id; }
-    public Zone getZone() { return zone; }
-    public LocalDate getDeliveryDate() { return deliveryDate; }
-    public LocalTime getStartTime() { return startTime; }
-    public LocalTime getEndTime() { return endTime; }
-    public int getPrice() { return price; }
-    public int getCapacity() { return capacity; }
-    public int getReservedCount() { return reservedCount; }
+    public boolean isSoldOut() {
+        return reservedCount >= capacity;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Zone getZone() {
+        return zone;
+    }
+
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public int getReservedCount() {
+        return reservedCount;
+    }
+
+    public boolean hasStarted(LocalDateTime now) {
+        return !LocalDateTime.of(deliveryDate, startTime).isAfter(now);
+    }
+
 }
