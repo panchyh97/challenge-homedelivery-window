@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.challenge.homedelivery.dto.CommuneResponse;
 import com.challenge.homedelivery.dto.DateAvailabilityResponse;
 import com.challenge.homedelivery.dto.DeliveryWindowResponse;
 import com.challenge.homedelivery.dto.ZoneResponse;
@@ -35,7 +36,13 @@ public class DeliveryQueryController {
   @GetMapping("/delivery-windows")
   public List<DeliveryWindowResponse> windows(
           @RequestParam String commune,
-          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-      return service.getWindows(commune, date);
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    return service.getWindows(commune, date);
   }
+  
+  @GetMapping("/communes")
+  public List<CommuneResponse> getCommunes() {
+      return service.getCommunes();
+  }
+  
 }
