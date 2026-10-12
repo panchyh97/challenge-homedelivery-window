@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.challenge.homedelivery.delivery.dto.CommuneResponse;
 import com.challenge.homedelivery.delivery.dto.DateAvailabilityResponse;
 import com.challenge.homedelivery.delivery.dto.DeliveryWindowResponse;
 import com.challenge.homedelivery.delivery.dto.ZoneResponse;
@@ -83,4 +84,10 @@ public class DeliveryQueryService {
         .orElseThrow(() -> new CommuneNotFoundException(communeName));
   }
 
+  @Transactional(readOnly = true)
+  public List<CommuneResponse> getCommunes() {
+    return communeRepository.findAllByOrderByNameAsc().stream()
+        .map(CommuneResponse::from)
+        .toList();
+  }
 }

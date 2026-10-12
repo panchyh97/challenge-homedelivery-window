@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.challenge.homedelivery.delivery.dto.CommuneResponse;
 import com.challenge.homedelivery.delivery.dto.DateAvailabilityResponse;
 import com.challenge.homedelivery.delivery.dto.DeliveryWindowResponse;
 import com.challenge.homedelivery.delivery.dto.ZoneResponse;
 import com.challenge.homedelivery.delivery.service.DeliveryQueryService;
-
 
 @RestController
 public class DeliveryQueryController {
@@ -29,13 +29,19 @@ public class DeliveryQueryController {
 
   @GetMapping("/available-dates")
   public List<DateAvailabilityResponse> availableDates(@RequestParam String commune) {
-      return service.getAvailableDates(commune);
+    return service.getAvailableDates(commune);
   }
 
   @GetMapping("/delivery-windows")
   public List<DeliveryWindowResponse> windows(
-          @RequestParam String commune,
-          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-      return service.getWindows(commune, date);
+      @RequestParam String commune,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    return service.getWindows(commune, date);
   }
+
+  @GetMapping("/communes")
+  public List<CommuneResponse> getCommunes() {
+    return service.getCommunes();
+  }
+
 }
