@@ -21,10 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.challenge.homedelivery.dto.CreateReservationRequest;
-import com.challenge.homedelivery.exception.DuplicateOrderException;
-import com.challenge.homedelivery.exception.WindowSoldOutException;
-import com.challenge.homedelivery.service.ReservationService;
+import com.challenge.homedelivery.reservation.dto.CreateReservationRequest;
+import com.challenge.homedelivery.reservation.exception.DuplicateOrderException;
+import com.challenge.homedelivery.reservation.exception.WindowSoldOutException;
+import com.challenge.homedelivery.reservation.service.ReservationService;
 
 @SpringBootTest
 class ReservationConcurrencyTest {
