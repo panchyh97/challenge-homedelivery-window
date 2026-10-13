@@ -31,6 +31,7 @@ export interface CreateReservationRequest {
   deliveryWindowId: number
   orderReference: string
   address: string
+  commune: string
 }
 
 export interface Reservation {

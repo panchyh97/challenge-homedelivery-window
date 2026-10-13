@@ -103,6 +103,7 @@ export function useBooking(streetAddress: string) {
         deliveryWindowId: selectedWindowId,
         orderReference: crypto.randomUUID(),
         address: `${streetAddress}, ${commune}`,
+        commune
       })
       setReservation(result)
     } catch (e) {

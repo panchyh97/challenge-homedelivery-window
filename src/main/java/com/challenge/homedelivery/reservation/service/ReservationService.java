@@ -6,13 +6,17 @@ import java.time.LocalDateTime;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.challenge.homedelivery.delivery.exception.CommuneNotFoundException;
+import com.challenge.homedelivery.delivery.model.Commune;
 import com.challenge.homedelivery.delivery.model.DeliveryWindow;
+import com.challenge.homedelivery.delivery.repository.CommuneRepository;
 import com.challenge.homedelivery.delivery.repository.DeliveryWindowRepository;
 import com.challenge.homedelivery.reservation.dto.CreateReservationRequest;
 import com.challenge.homedelivery.reservation.dto.ReservationResponse;
 import com.challenge.homedelivery.reservation.exception.DuplicateOrderException;
 import com.challenge.homedelivery.reservation.exception.WindowAlreadyStartedException;
 import com.challenge.homedelivery.reservation.exception.WindowNotFoundException;
+import com.challenge.homedelivery.reservation.exception.WindowOutOfCoverageException;
 import com.challenge.homedelivery.reservation.exception.WindowSoldOutException;
 import com.challenge.homedelivery.reservation.model.Reservation;
 import com.challenge.homedelivery.reservation.repository.ReservationRepository;
@@ -22,12 +26,15 @@ import jakarta.transaction.Transactional;
 @Service
 public class ReservationService {
   private final DeliveryWindowRepository windowRepository;
+  private final CommuneRepository communeRepository;
   private final ReservationRepository reservationRepository;
   private final Clock clock;
 
-  public ReservationService(DeliveryWindowRepository windowRepository, ReservationRepository reservationRepository,
+  public ReservationService(DeliveryWindowRepository windowRepository, CommuneRepository communeRepository,
+      ReservationRepository reservationRepository,
       Clock clock) {
     this.windowRepository = windowRepository;
+    this.communeRepository = communeRepository;
     this.reservationRepository = reservationRepository;
     this.clock = clock;
   }
@@ -39,10 +46,18 @@ public class ReservationService {
     DeliveryWindow window = windowRepository.findById(request.deliveryWindowId())
         .orElseThrow(() -> new WindowNotFoundException(request.deliveryWindowId()));
 
+    Commune commune = communeRepository.findByNameIgnoreCase(request.commune())
+        .orElseThrow(() -> new CommuneNotFoundException(request.commune()));
+
+    if (!window.getZone().getId().equals(commune.getZone().getId())) {
+      throw new WindowOutOfCoverageException(window.getId(), commune.getName());
+    }
+    ;
+
     if (window.hasStarted(now)) {
       throw new WindowAlreadyStartedException(window.getId());
     }
-        
+
     Reservation reservation = new Reservation(window, request.orderReference(), request.address(), now);
     try {
       reservationRepository.saveAndFlush(reservation);
@@ -55,8 +70,7 @@ public class ReservationService {
     }
 
     return new ReservationResponse(
-      reservation.getId(), window.getId(), reservation.getOrderReference(),
-          reservation.getAddress(), reservation.getStatus(), reservation.getCreatedAt()
-    );
+        reservation.getId(), window.getId(), reservation.getOrderReference(),
+        reservation.getAddress(), reservation.getStatus(), reservation.getCreatedAt());
   }
 }
