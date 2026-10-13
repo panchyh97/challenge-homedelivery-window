@@ -1,7 +1,11 @@
 package com.challenge.homedelivery.reservation.exception;
 
-public class WindowSoldOutException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+import com.challenge.homedelivery.shared.exception.ApiException;
+
+public class WindowSoldOutException extends ApiException {
   public WindowSoldOutException(Long id) {
-    super("Delivery window is sold out: " + id);
+    super("Delivery window" + id + " is sold out", HttpStatus.CONFLICT);
   }
 }

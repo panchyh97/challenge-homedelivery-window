@@ -1,7 +1,11 @@
 package com.challenge.homedelivery.reservation.exception;
 
-public class DuplicateOrderException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+import com.challenge.homedelivery.shared.exception.ApiException;
+
+public class DuplicateOrderException extends ApiException {
   public DuplicateOrderException(String orderReference) {
-    super("Order already has a reservation: " + orderReference);
+    super("Order " + orderReference + " already has a reservation", HttpStatus.CONFLICT);
   }
 }
