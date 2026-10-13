@@ -1,8 +1,10 @@
 package com.challenge.homedelivery.reservation.service;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +16,7 @@ import com.challenge.homedelivery.delivery.repository.DeliveryWindowRepository;
 import com.challenge.homedelivery.reservation.dto.CreateReservationRequest;
 import com.challenge.homedelivery.reservation.dto.ReservationResponse;
 import com.challenge.homedelivery.reservation.exception.DuplicateOrderException;
-import com.challenge.homedelivery.reservation.exception.WindowAlreadyStartedException;
+import com.challenge.homedelivery.reservation.exception.WindowNotBookableException;
 import com.challenge.homedelivery.reservation.exception.WindowNotFoundException;
 import com.challenge.homedelivery.reservation.exception.WindowOutOfCoverageException;
 import com.challenge.homedelivery.reservation.exception.WindowSoldOutException;
@@ -25,6 +27,8 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class ReservationService {
+  private final Duration minLeadTime;
+
   private final DeliveryWindowRepository windowRepository;
   private final CommuneRepository communeRepository;
   private final ReservationRepository reservationRepository;
@@ -32,11 +36,12 @@ public class ReservationService {
 
   public ReservationService(DeliveryWindowRepository windowRepository, CommuneRepository communeRepository,
       ReservationRepository reservationRepository,
-      Clock clock) {
+      Clock clock, @Value("${delivery.min-lead-time}") Duration minLeadTime) {
     this.windowRepository = windowRepository;
     this.communeRepository = communeRepository;
     this.reservationRepository = reservationRepository;
     this.clock = clock;
+    this.minLeadTime = minLeadTime;
   }
 
   @Transactional
@@ -54,8 +59,8 @@ public class ReservationService {
     }
     ;
 
-    if (window.hasStarted(now)) {
-      throw new WindowAlreadyStartedException(window.getId());
+    if (!window.isBookable(now, minLeadTime)) {
+      throw new WindowNotBookableException(window.getId());
     }
 
     Reservation reservation = new Reservation(window, request.orderReference(), request.address(), now);

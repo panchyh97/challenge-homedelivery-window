@@ -1,5 +1,6 @@
 package com.challenge.homedelivery.delivery.model;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -87,8 +88,8 @@ public class DeliveryWindow {
         return reservedCount;
     }
 
-    public boolean hasStarted(LocalDateTime now) {
-        return !LocalDateTime.of(deliveryDate, startTime).isAfter(now);
+    public boolean isBookable(LocalDateTime now, Duration minLeadTime) {
+        return !LocalDateTime.of(deliveryDate, startTime).isBefore(now.plus(minLeadTime));
     }
 
 }
