@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CreateReservationRequest(
-    @NotNull Long deliveryWindowId,
-    @NotBlank @Size(max = 50) String orderReference,
-    @NotBlank @Size(max = 255) String address) {
+        @NotNull(message = "must not be null") Long deliveryWindowId,
+
+        @NotBlank(message = "must not be blank") @Size(max = 50, message = "must be at most 50 characters") String orderReference,
+
+        @NotBlank(message = "must not be blank") @Size(max = 255, message = "must be at most 255 characters") String address) {
 }
