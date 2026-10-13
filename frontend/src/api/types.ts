@@ -12,3 +12,29 @@ export interface DeliveryWindow {
   availableSlots: number
   soldOut: boolean
 }
+
+export interface ApiEnvelope<T> {
+  status: number
+  message: string
+  data: T | null
+  error: string | null
+  fields: Record<string, string> | null
+}
+
+export interface Commune {
+  id: number
+  name: string
+  zoneName: string
+}
+
+export interface CreateReservationRequest {
+  deliveryWindowId: number
+  orderReference: string
+  address: string
+}
+
+export interface Reservation {
+  id: number
+  orderReference: string
+  status: string
+}

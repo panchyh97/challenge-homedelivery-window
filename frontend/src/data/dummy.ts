@@ -27,5 +27,5 @@ export const DUMMY_WINDOWS: DeliveryWindow[] = [
 
 export const DUMMY_CUSTOMER = {
   name: 'Pedro Perez',
-  address: 'Monjitas, 2334, La Serena, Coquimbo',
+  street: 'Monjitas, 2334, La Serena, Coquimbo',
 }
