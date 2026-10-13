@@ -16,6 +16,7 @@ import com.challenge.homedelivery.delivery.dto.DateAvailabilityResponse;
 import com.challenge.homedelivery.delivery.dto.DeliveryWindowResponse;
 import com.challenge.homedelivery.delivery.dto.ZoneResponse;
 import com.challenge.homedelivery.delivery.exception.CommuneNotFoundException;
+import com.challenge.homedelivery.delivery.exception.DateOutOfRangeException;
 import com.challenge.homedelivery.delivery.model.DeliveryWindow;
 import com.challenge.homedelivery.delivery.repository.CommuneRepository;
 import com.challenge.homedelivery.delivery.repository.DeliveryWindowRepository;
@@ -52,7 +53,7 @@ public class DeliveryQueryService {
 
     List<DeliveryWindow> windows = windowRepository
         .findByZoneIdAndDeliveryDateBetweenOrderByDeliveryDateAscStartTimeAsc(zoneId, today,
-            today.plusDays(DAYS_AHEAD - 1));
+            lastBookableDate(today));
 
     Map<LocalDate, Integer> slotsPerDate = windows.stream()
         .filter(w -> !w.hasStarted(now))
@@ -69,6 +70,12 @@ public class DeliveryQueryService {
   public List<DeliveryWindowResponse> getWindows(String communeName, LocalDate date) {
     Long zoneId = zoneIdOf(communeName);
     LocalDateTime now = LocalDateTime.now(clock);
+    LocalDate today = now.toLocalDate();
+    LocalDate lastBookableDate = lastBookableDate(today);
+
+    if (date.isBefore(today) || date.isAfter(lastBookableDate)) {
+      throw new DateOutOfRangeException(date, today, lastBookableDate);
+    }
 
     return windowRepository.findByZoneIdAndDeliveryDateOrderByStartTimeAsc(zoneId, date).stream()
         .filter(w -> !w.hasStarted(now))
@@ -89,5 +96,9 @@ public class DeliveryQueryService {
     return communeRepository.findAllByOrderByNameAsc().stream()
         .map(CommuneResponse::from)
         .toList();
+  }
+
+  private LocalDate lastBookableDate(LocalDate today) {
+    return today.plusDays(DAYS_AHEAD - 1);
   }
 }
