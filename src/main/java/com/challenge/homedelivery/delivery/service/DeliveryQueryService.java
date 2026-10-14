@@ -1,6 +1,7 @@
 package com.challenge.homedelivery.delivery.service;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import com.challenge.homedelivery.delivery.dto.DateAvailabilityResponse;
 import com.challenge.homedelivery.delivery.dto.DeliveryWindowResponse;
 import com.challenge.homedelivery.delivery.dto.ZoneResponse;
 import com.challenge.homedelivery.delivery.exception.CommuneNotFoundException;
+import com.challenge.homedelivery.delivery.exception.DateOutOfRangeException;
 import com.challenge.homedelivery.delivery.model.DeliveryWindow;
 import com.challenge.homedelivery.delivery.repository.CommuneRepository;
 import com.challenge.homedelivery.delivery.repository.DeliveryWindowRepository;
@@ -26,17 +29,21 @@ import com.challenge.homedelivery.delivery.repository.ZoneRepository;
 public class DeliveryQueryService {
   private static final int DAYS_AHEAD = 7;
 
+  private final Duration minLeadTime;
+
   private final ZoneRepository zoneRepository;
   private final CommuneRepository communeRepository;
   private final DeliveryWindowRepository windowRepository;
   private final Clock clock;
 
   public DeliveryQueryService(ZoneRepository zoneRepository, CommuneRepository communeRepository,
-      DeliveryWindowRepository windowRepository, Clock clock) {
+      DeliveryWindowRepository windowRepository, Clock clock,
+      @Value("${delivery.min-lead-time}") Duration minLeadTime) {
     this.zoneRepository = zoneRepository;
     this.communeRepository = communeRepository;
     this.windowRepository = windowRepository;
     this.clock = clock;
+    this.minLeadTime = minLeadTime;
   }
 
   public List<ZoneResponse> getZones() {
@@ -52,10 +59,10 @@ public class DeliveryQueryService {
 
     List<DeliveryWindow> windows = windowRepository
         .findByZoneIdAndDeliveryDateBetweenOrderByDeliveryDateAscStartTimeAsc(zoneId, today,
-            today.plusDays(DAYS_AHEAD - 1));
+            lastBookableDate(today));
 
     Map<LocalDate, Integer> slotsPerDate = windows.stream()
-        .filter(w -> !w.hasStarted(now))
+        .filter(w -> w.isBookable(now, minLeadTime))
         .collect(Collectors.groupingBy(
             DeliveryWindow::getDeliveryDate,
             TreeMap::new,
@@ -69,9 +76,15 @@ public class DeliveryQueryService {
   public List<DeliveryWindowResponse> getWindows(String communeName, LocalDate date) {
     Long zoneId = zoneIdOf(communeName);
     LocalDateTime now = LocalDateTime.now(clock);
+    LocalDate today = now.toLocalDate();
+    LocalDate lastBookableDate = lastBookableDate(today);
+
+    if (date.isBefore(today) || date.isAfter(lastBookableDate)) {
+      throw new DateOutOfRangeException(date, today, lastBookableDate);
+    }
 
     return windowRepository.findByZoneIdAndDeliveryDateOrderByStartTimeAsc(zoneId, date).stream()
-        .filter(w -> !w.hasStarted(now))
+        .filter(w -> w.isBookable(now, minLeadTime))
         .map(w -> new DeliveryWindowResponse(
             w.getId(), w.getStartTime(), w.getEndTime(),
             w.getPrice(), w.getAvailableSlots(), w.isSoldOut()))
@@ -89,5 +102,9 @@ public class DeliveryQueryService {
     return communeRepository.findAllByOrderByNameAsc().stream()
         .map(CommuneResponse::from)
         .toList();
+  }
+
+  private LocalDate lastBookableDate(LocalDate today) {
+    return today.plusDays(DAYS_AHEAD - 1);
   }
 }

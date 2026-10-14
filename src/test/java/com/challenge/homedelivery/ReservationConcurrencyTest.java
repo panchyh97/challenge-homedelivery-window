@@ -31,6 +31,8 @@ class ReservationConcurrencyTest {
   private static final int THREADS = 50;
   private static final int CAPACITY = 5;
 
+  private static final String NORTH_COMMUNE = "La Serena";
+
   @Autowired
   private ReservationService reservationService;
 
@@ -45,12 +47,11 @@ class ReservationConcurrencyTest {
     Long windowId = createWindow(CAPACITY, 30);
 
     Outcome outcome = fire(THREADS,
-        i -> new CreateReservationRequest(windowId, "CONC-" + i, "Some address " + i));
+        i -> new CreateReservationRequest(windowId, "CONC-" + i, "Some address " + i, NORTH_COMMUNE));
 
     assertThat(outcome.unexpected()).isEmpty();
     assertThat(outcome.success()).isEqualTo(CAPACITY);
     assertThat(outcome.soldOut()).isEqualTo(THREADS - CAPACITY);
-    assertThat(reservedCount(windowId)).isEqualTo(CAPACITY);
     assertThat(reservedCount(windowId)).isEqualTo(CAPACITY);
   }
   
@@ -58,7 +59,7 @@ class ReservationConcurrencyTest {
   void sameOrderCanOnlyReserveOnce() throws Exception {
     Long windowId = createWindow(CAPACITY, 31);
 
-    Outcome outcome = fire(20, i -> new CreateReservationRequest(windowId, "SAME-ORDER", "Some address"));
+    Outcome outcome = fire(20, i -> new CreateReservationRequest(windowId, "SAME-ORDER", "Some address", NORTH_COMMUNE));
 
     assertThat(outcome.unexpected()).isEmpty();
     assertThat(outcome.success()).isEqualTo(1);
