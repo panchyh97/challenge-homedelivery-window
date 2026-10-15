@@ -1,4 +1,4 @@
-import type { Commune } from '../api/types'
+import type { Commune } from "../api"
 
 interface Props {
   communes: Commune[]

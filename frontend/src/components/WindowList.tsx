@@ -1,5 +1,5 @@
-import type { DeliveryWindow } from '../api/types'
-import { priceLabel, windowLabel } from '../lib/format'
+import type { DeliveryWindow } from '../api'
+import { priceLabel, windowLabel } from '../utils/format'
 
 interface Props {
   windows: DeliveryWindow[]

@@ -1,5 +1,5 @@
-import type { DateAvailability } from '../api/types'
-import { dayMonthLabel, weekdayLabel } from '../lib/format'
+import type { DateAvailability } from '../api'
+import { dayMonthLabel, weekdayLabel } from '../utils/format'
 
 interface Props {
   dates: DateAvailability[]
