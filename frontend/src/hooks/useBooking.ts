@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  ApiError,
-  createReservation,
-  getAvailableDates,
-  getCommunes,
-  getDeliveryWindows,
-} from '../api/client'
-import type { Commune, DateAvailability, DeliveryWindow, Reservation } from '../api/types'
+import { type Commune, type DateAvailability, type DeliveryWindow, type Reservation, ApiError, deliveryService, reservationService } from '../api'
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : 'Error inesperado'
@@ -28,7 +21,7 @@ export function useBooking(streetAddress: string) {
   // Communes
   useEffect(() => {
     let cancelled = false
-    getCommunes()
+    deliveryService.getCommunes()
       .then((data) => {
         if (cancelled) return
         setCommunes(data)
@@ -44,7 +37,7 @@ export function useBooking(streetAddress: string) {
   useEffect(() => {
     if (!commune) return
     let cancelled = false
-    getAvailableDates(commune)
+    deliveryService.getAvailableDates(commune)
       .then((data) => {
         if (cancelled) return
         setDates(data)
@@ -62,7 +55,7 @@ export function useBooking(streetAddress: string) {
   useEffect(() => {
     if (!commune || !selectedDate) return
     let cancelled = false
-    getDeliveryWindows(commune, selectedDate)
+    deliveryService.getDeliveryWindows(commune, selectedDate)
       .then((data) => {
         if (cancelled) return
         setWindows(data)
@@ -99,7 +92,7 @@ export function useBooking(streetAddress: string) {
     setError(null)
     setReservation(null)
     try {
-      const result = await createReservation({
+      const result = await reservationService.create({
         deliveryWindowId: selectedWindowId,
         orderReference: crypto.randomUUID(),
         address: `${streetAddress}, ${commune}`,

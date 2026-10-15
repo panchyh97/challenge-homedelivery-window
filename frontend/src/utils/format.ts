@@ -1,4 +1,4 @@
-import type { DeliveryWindow } from '../api/types'
+import type { DeliveryWindow } from "../api"
 
 const WEEKDAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 

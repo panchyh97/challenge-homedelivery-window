@@ -1,14 +1,9 @@
 import { useState } from 'react'
-import { AddressRow } from '../components/AddressRow'
-import { BookingHeader } from '../components/BookingHeader'
-import { CommuneSelect } from '../components/CommuneSelect'
-import { DateSelector } from '../components/DateSelector'
+import { AddressRow, BookingHeader, CommuneSelect, DateSelector, ReserveButton, WindowList } from '../components'
 import { DeliveryModeTabs, type DeliveryMode } from '../components/DeliveryModeTabs'
-import { ReserveButton } from '../components/ReserveButton'
-import { WindowList } from '../components/WindowList'
 import { DUMMY_CUSTOMER } from '../data/dummy'
 import { useBooking } from '../hooks/useBooking'
-import { MODE_LABEL } from '../lib/labels'
+import { MODE_LABEL } from '../utils/labels'
 
 export function BookingPage() {
   const [mode, setMode] = useState<DeliveryMode>('delivery')
